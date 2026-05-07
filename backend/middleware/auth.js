@@ -1,5 +1,7 @@
-import { auth } from "express-openid-connect";
+import openid from "express-openid-connect";
 import dotenv from "dotenv";
+
+const { auth } = openid;
 
 dotenv.config();
 

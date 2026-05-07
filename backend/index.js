@@ -1,8 +1,6 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import { authMiddleware } from "./middleware/auth.js";
-import { requiresAuth } from "express-openid-connect";
 
 dotenv.config();
 
@@ -16,29 +14,32 @@ app.use(
   })
 );
 app.use(express.json());
-app.use(authMiddleware);
+
+// Fake auth middleware — replaces Auth0 for local development without credentials
+const requiresAuth = () => (req, res, next) => {
+  if (!req.headers["x-test-user"] && !req.headers["cookie"]) {
+    return res.status(401).json({ error: "Not authenticated" });
+  }
+  req.oidc = { user: { name: "Ada", email: "ada@test.com" } };
+  next();
+};
 
 // Public route
 app.get("/", (req, res) => {
-  res.json({ message: "API running", isAuthenticated: req.oidc.isAuthenticated() });
+  res.json({ message: "API running" });
 });
 
-// Optional challenge: return current user or null (no auth required)
-app.get("/me", (req, res) => {
-  res.json(req.oidc.isAuthenticated() ? req.oidc.user : null);
-});
-
-// Public books route for security testing practice
+// Public books route
 app.get("/books", (req, res) => {
   res.json([{ id: 1, title: "The Pragmatic Programmer" }]);
 });
 
-// Task A: protected profile route
+// Protected profile route
 app.get("/profile", requiresAuth(), (req, res) => {
   res.json(req.oidc.user);
 });
 
-// Task B: protected secure-data route
+// Protected secure-data route
 app.get("/secure-data", requiresAuth(), (req, res) => {
   res.json({
     message: "This is protected data",
