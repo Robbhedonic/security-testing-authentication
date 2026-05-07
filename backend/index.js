@@ -28,6 +28,11 @@ app.get("/me", (req, res) => {
   res.json(req.oidc.isAuthenticated() ? req.oidc.user : null);
 });
 
+// Public books route for security testing practice
+app.get("/books", (req, res) => {
+  res.json([{ id: 1, title: "The Pragmatic Programmer" }]);
+});
+
 // Task A: protected profile route
 app.get("/profile", requiresAuth(), (req, res) => {
   res.json(req.oidc.user);

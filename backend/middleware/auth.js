@@ -6,6 +6,7 @@ dotenv.config();
 // Auth0 configuration
 const config = {
   authRequired: false,
+  errorOnRequiredAuth: true,
   auth0Logout: true,
   secret: process.env.SECRET,
   baseURL: process.env.BASE_URL,
